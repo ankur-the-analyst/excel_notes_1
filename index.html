@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AEDV</title>
+    <title>Excel Advanced Advanced Excel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -48,7 +48,7 @@
     <header class="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center z-10">
         <h1 class="font-bold text-lg text-slate-800 flex items-center gap-2">
             <span class="w-8 h-8 bg-excel-green text-white rounded flex items-center justify-center text-xs">XLS</span>
-            AEDV
+            Advanced Excel
         </h1>
         <button id="mobile-menu-btn" class="text-slate-600 focus:outline-none">
             ☰
@@ -60,9 +60,9 @@
         <div class="p-6 border-b border-slate-100">
             <h1 class="font-bold text-xl text-slate-800 flex items-center gap-2">
                 <span class="w-8 h-8 bg-excel-green text-white rounded flex items-center justify-center text-sm shadow-sm">XLS</span>
-                AEDV
+                Advanced Excel
             </h1>
-            <p class="text-xs text-slate-500 mt-2">Prof. Ankur Madan</p>
+            <p class="text-xs text-slate-500 mt-2"> - Prof. Ankur Madan</p>
         </div>
         <div class="flex-1 overflow-y-auto py-4">
             <ul class="space-y-1">
@@ -808,8 +808,11 @@
                                 <div class="text-[10px] text-slate-400 uppercase font-bold">Quiz Performance</div>
                                 <div class="text-lg font-bold text-slate-800" id="score-display">0 / 0</div>
                             </div>
-                             <div class="chart-container" style="width: 100px; height: 50px;">
-                                <canvas id="quizChart"></canvas>
+                             <div style="width:100px; height:100px; position:relative">
+                                <div class="chart-container" style="width:100px; height:100px;">
+                                    <canvas id="quizChart"></canvas>
+                                </div>
+                                <div id="quizChartLabel" style="position:absolute;left:0;top:0;width:100px;height:100px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0f5132"></div>
                             </div>
                         </div>
                     </div>
@@ -875,23 +878,37 @@
         function initQuizChart() {
             const ctx = document.getElementById('quizChart').getContext('2d');
             quizChartInstance = new Chart(ctx, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
                     labels: ['Correct', 'Wrong'],
                     datasets: [{
-                        data: [quizScore.correct, quizScore.attempts - quizScore.correct],
-                        backgroundColor: ['#107C41', '#ef4444'],
-                        borderRadius: 4,
-                        barThickness: 10
+                        data: [quizScore.correct, Math.max(0, quizScore.attempts - quizScore.correct)],
+                        backgroundColor: ['#107C41', '#e5e7eb'],
+                        borderWidth: 0
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { display: false }, y: { display: false } },
+                    cutout: '70%',
                     plugins: { legend: { display: false }, tooltip: { enabled: false } }
                 }
             });
+
+            // initial label
+            const label = document.getElementById('quizChartLabel');
+            if (label) label.innerText = quizScore.attempts === 0 ? '0%' : `${Math.round((quizScore.correct / quizScore.attempts) * 100)}%`;
+        }
+
+        function updateQuizChart() {
+            if (!quizChartInstance) return;
+            const correct = quizScore.correct;
+            const wrong = Math.max(0, quizScore.attempts - quizScore.correct);
+            quizChartInstance.data.datasets[0].data = [correct, wrong];
+            quizChartInstance.update();
+            const label = document.getElementById('quizChartLabel');
+            const pct = quizScore.attempts === 0 ? 0 : Math.round((correct / quizScore.attempts) * 100);
+            if (label) label.innerText = `${pct}%`;
         }
 
         window.checkAnswer = (caseIdx, qIdx, selected, correct) => {
@@ -930,10 +947,7 @@
             updateProgress();
 
             // Update Chart
-            if (quizChartInstance) {
-                quizChartInstance.data.datasets[0].data = [quizScore.correct, quizScore.attempts - quizScore.correct];
-                quizChartInstance.update();
-            }
+            updateQuizChart();
         };
 
         // Reset all questions in a specific case: re-enable inputs, clear feedback, and adjust scores
@@ -968,10 +982,7 @@
             // Update UI stats and chart
             document.getElementById('score-display').innerText = `${quizScore.correct} / ${quizScore.attempts}`;
             updateProgress();
-            if (quizChartInstance) {
-                quizChartInstance.data.datasets[0].data = [quizScore.correct, quizScore.attempts - quizScore.correct];
-                quizChartInstance.update();
-            }
+            updateQuizChart();
         };
 
         function updateProgress() {
