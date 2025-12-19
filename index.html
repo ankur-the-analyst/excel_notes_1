@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excel Advanced AEDV</title>
+    <title>AEDV</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -62,7 +62,7 @@
                 <span class="w-8 h-8 bg-excel-green text-white rounded flex items-center justify-center text-sm shadow-sm">XLS</span>
                 AEDV
             </h1>
-            <p class="text-xs text-slate-500 mt-2">Advanced Excel Study Companion</p>
+            <p class="text-xs text-slate-500 mt-2">Prof. Ankur Madan</p>
         </div>
         <div class="flex-1 overflow-y-auto py-4">
             <ul class="space-y-1">
@@ -70,6 +70,7 @@
                 <li><button onclick="router('Topic1')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic1">Topic I: Data Sanitation</button></li>
                 <li><button onclick="router('Topic2')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic2">Topic II: Visual Logic</button></li>
                 <li><button onclick="router('Topic3')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic3">Topic III: Adv. Functions</button></li>
+                <li><button onclick="router('Topic4')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic4">Topic IV: Pivot & Dashboards</button></li>
                 <li><button onclick="router('practice')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="practice">Case Studies & Quiz</button></li>
             </ul>
         </div>
@@ -221,7 +222,87 @@
                                 { q: "To sum value only for Category 'A', use:", options: ["SUMPRODUCT with a Category='A' condition", "SUM only", "VLOOKUP"], ans: 0, expl: "SUMPRODUCT with a Category='A' mask multiplied by Price and Qty filters and sums correctly." },
                                 { q: "If some Qty cells are blank text, best simple fix is:", options: ["Coerce blanks to 0 before calculation (e.g., N() or VALUE())", "Ignore blanks", "Convert numbers to text"], ans: 0, expl: "Coercing blanks to zero prevents calculation errors and yields correct totals." }
                             ]
+                        },
+                        {
+                            id: "G",
+                            title: "Case Study G: Pivot Basics",
+                            dataHeader: ["Product", "Region", "Sales", "Qty"],
+                            dataRows: [
+                                ["Widget", "North", 250, 10],
+                                ["Gadget", "South", 125, 5],
+                                ["Thing", "East", 90, 3]
+                            ],
+                            questions: [
+                                { q: "To show a breakdown of Sales by Product in rows, put Product in which area?", options: ["Rows", "Values", "Filters"], ans: 0, expl: "Place the field in Rows to list items vertically by product." },
+                                { q: "Where should aggregate functions (Sum of Sales) be placed in a Pivot?", options: ["Rows", "Values", "Columns"], ans: 1, expl: "Numeric summaries belong in the Values area to calculate Sum, Count, etc." },
+                                { q: "To display empty pivot cells as 0, change which setting?", options: ["PivotTable Options -> For empty cells show", "Format Cells -> Number", "Conditional Formatting"], ans: 0, expl: "Use PivotTable Options to set a value for empty cells in the pivot." }
+                            ]
+                        },
+                        {
+                            id: "H",
+                            title: "Case Study H: Field Items, Sets & Calculations",
+                            dataHeader: ["Order","Category","Amount"],
+                            dataRows: [
+                                ["O1","A",250],
+                                ["O2","B",125],
+                                ["O3","A",175]
+                            ],
+                            questions: [
+                                { q: "Where do you create a Calculated Field in a Pivot?", options: ["Analyze -> Fields, Items & Sets -> Calculated Field","Insert -> Table","Home -> Find"], ans: 0, expl: "Calculated Fields are created from the PivotTable Analyze ribbon under Fields, Items & Sets." },
+                                { q: "To group months into quarters in a Pivot, use:", options: ["Slicer","Group Field","Sort"], ans: 1, expl: "Use Group on a date field to combine months into quarters or years." },
+                                { q: "Named sets in Pivot allow saving a custom selection of items:", options: ["True","False"], ans: 0, expl: "Named sets persist a selection of items for reuse across pivot reports." }
+                            ]
+                        },
+                        {
+                            id: "I",
+                            title: "Case Study I: Slicers, Timelines & Connections",
+                            dataHeader: ["Date","Region","Sales"],
+                            dataRows: [
+                                ["2025-01-03","North",250],
+                                ["2025-01-05","South",125],
+                                ["2025-01-10","East",90]
+                            ],
+                            questions: [
+                                { q: "You want one slicer to control multiple pivot tables. Which action links them?", options: ["Right-click Slicer -> Report Connections","Insert -> Timeline","Data -> Connections"], ans: 0, expl: "Use Report Connections (or Slicer Connections) to link a slicer to multiple pivots." },
+                                { q: "A Timeline control is specifically used to filter by which type of field?", options: ["Date fields","Text fields","Numeric fields"], ans: 0, expl: "Timelines are built for date fields and allow quick range selection." },
+                                { q: "To filter several pivots with one control, use Slicer Connections:", options: ["True","False"], ans: 0, expl: "Slicer Connections let a single slicer filter multiple pivot tables on the same field." }
+                            ]
+                        },
+                        {
+                            id: "J",
+                            title: "Case Study J: Dashboards & Storytelling",
+                            dataHeader: ["Metric","Value"],
+                            dataRows: [
+                                ["Total Sales",775],
+                                ["Total Orders",5]
+                            ],
+                            questions: [
+                                { q: "Best practice for dashboard storytelling is:", options: ["Use small multiples and concise captions","Fill with as many charts as possible","Show raw pivot tables only"], ans: 0, expl: "Small multiples, clear captions and focused visuals make dashboards easier to interpret." },
+                                { q: "Which control provides an interactive date range on dashboards?", options: ["Timeline","Slicer","Filter Pane"], ans: 0, expl: "Timelines provide a dedicated interactive control for filtering by dates." },
+                                { q: "Show Report Filter Pages creates separate sheets for each filter value:", options: ["True","False"], ans: 0, expl: "This feature generates a sheet per selected report filter value for focused analysis." }
+                            ]
                         }
+                    ]
+                }
+                ,
+                Topic4: {
+                    title: "Pivot Tables & Dashboards",
+                    desc: "Create Pivot Tables, manipulate field items & sets, handle missing values, sorting, filtering, and build dashboards using slicers, timelines and report connections.",
+                    highlights: [
+                        { title: 'Pivot Basics', text: 'Create summarised tables quickly using rows, columns, values and filters.' },
+                        { title: 'Field Items & Sets', text: 'Group items, create calculated fields and named sets to shape analysis.' },
+                        { title: 'Handling Missing Values', text: 'Replace blanks, show zeros, or use custom formatting for missing data.' },
+                        { title: 'Sorting & Filtering', text: 'Sort by value, label or apply top/bottom filters. Use report filters and filter pages.' },
+                        { title: 'Slicers & Timelines', text: 'Add slicers for fields and timelines for date ranges; connect them to multiple pivots.' },
+                        { title: 'Dashboards & Storytelling', text: 'Combine pivot charts, slicers and narrative to create interactive dashboards.' }
+                    ],
+                    demoData: [
+                        ['Order','Region','Date','Product','Qty','Sales'],
+                        ['O1','North','2025-01-03','Widget',10,250],
+                        ['O2','South','2025-01-05','Gadget',5,125],
+                        ['O3','North','2025-01-08','Widget',7,175],
+                        ['O4','East','2025-01-10','Thing',3,90],
+                        ['O5','West','2025-01-12','Gadget',8,200]
                     ]
                 }
             }
@@ -261,6 +342,7 @@
             else if (target === 'Topic1') renderTopic1();
             else if (target === 'Topic2') renderTopic2();
             else if (target === 'Topic3') renderTopic3();
+            else if (target === 'Topic4') renderTopic4();
             else if (target === 'practice') renderPractice();
         }
 
@@ -636,6 +718,82 @@
             mainContent.innerHTML = html;
         }
 
+        function renderTopic4() {
+            const data = appData.units.Topic4;
+            let html = `
+                <div class="p-8 max-w-7xl mx-auto fade-in">
+                    <div class="mb-6 pb-6 border-b border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Topic IV: ${data.title}</h2>
+                        <p class="text-slate-600 max-w-3xl">${data.desc}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        ${data.highlights.map(h => `
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                                <h4 class="text-sm font-bold text-slate-800 mb-2">${h.title}</h4>
+                                <p class="text-sm text-slate-600">${h.text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">Pivot Workflow & Tips</h3>
+                        <ul class="list-disc pl-5 space-y-2 text-sm text-slate-600">
+                            <li><strong>Create:</strong> Insert &rarr; PivotTable. Place source on a Table for auto-refresh.</li>
+                            <li><strong>Fields:</strong> Drag fields to Rows, Columns, Values and Filters to shape output.</li>
+                            <li><strong>Calculated Fields & Items:</strong> Use Analyze &rarr; Fields, Items & Sets to add logic inside the pivot.</li>
+                            <li><strong>Missing Values:</strong> Right-click &rarr; PivotTable Options &rarr; Layout & Format &rarr; 'For empty cells show' &mdash; set 0 or custom text.</li>
+                            <li><strong>Sorting:</strong> Sort labels or values; use manual sort for custom orders and 'More Sort Options' for Top/Bottom filters.</li>
+                            <li><strong>Filtering:</strong> Use Report Filters or Slicers for fast interactive filtering; use 'Show Report Filter Pages' to create separate sheets per filter value.</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-4">Demo Data (Pivot-ready)</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm text-left text-slate-600">
+                                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                                        <tr>${data.demoData[0].map(h => `<th class=\"px-3 py-2\">${h}</th>`).join('')}</tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        ${data.demoData.slice(1).map(r => `
+                                            <tr>${r.map(c => `<td class=\"px-3 py-2 font-mono text-xs\">${c}</td>`).join('')}</tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-3">Tip: Convert this to a Table (Ctrl+T) before creating a Pivot so range expands automatically.</p>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-slate-800 mb-4">Dashboard Building Blocks</h4>
+                            <ul class="text-sm text-slate-600 space-y-2">
+                                <li><strong>Pivot Chart:</strong> Visualise pivot output and enable 'Refresh on open'.</li>
+                                <li><strong>Slicers:</strong> Insert slicers for categorical fields and connect them to multiple pivots via Report Connections.</li>
+                                <li><strong>Timelines:</strong> Add a Timeline control for date fields to filter by ranges interactively.</li>
+                                <li><strong>Icons & Symbols:</strong> Use conditional formatting in pivot cache or overlay symbols to show KPIs (▲ ▼ •).</li>
+                                <li><strong>Infographics:</strong> Use small multiples, color palettes and short captions to tell a data story.</li>
+                            </ul>
+                            <div class="mt-6 pt-4 border-t border-slate-100">
+                                <button onclick="alert('Tip: Build pivot charts, add slicers and timelines, then arrange on a sheet for a dashboard.')" class="px-4 py-2 bg-excel-green text-white rounded">Quick Tip</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 mb-3">Common Recipes</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-3 bg-slate-50 rounded border border-slate-200 text-sm">Show Report Filter Pages: Analyze each filter value on its own sheet (Analyze &rarr; Options &rarr; 'Show Report Filter Pages').</div>
+                            <div class="p-3 bg-slate-50 rounded border border-slate-200 text-sm">Slicer Connections: Right-click Slicer &rarr; Report Connections to link to multiple pivots.</div>
+                            <div class="p-3 bg-slate-50 rounded border border-slate-200 text-sm">Calculated Fields: Use for ratios and custom aggregates when source data cannot be changed.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+        }
+
         function renderPractice() {
             const data = appData.units.practice;
             let html = `
@@ -759,9 +917,9 @@
                 card.classList.add('border-green-300', 'ring-1', 'ring-green-300');
                 answeredMap[key] = { answered: true, correct: true };
             } else {
-                // Show incorrect feedback and reveal the correct option text
+                // Show incorrect feedback and reveal the correct option text (visible in green)
                 const correctText = appData.units.practice.cases[caseIdx].questions[qIdx].options[correct];
-                feedback.innerHTML = `<strong>Incorrect.</strong> ${expl} <br><strong>Correct:</strong> ${correctText}`;
+                feedback.innerHTML = `<strong>Incorrect.</strong> ${expl}<br><div class="mt-2"><strong class="text-green-800">Correct:</strong> <span class="text-green-800 font-bold">${correctText}</span></div>`;
                 feedback.classList.add('bg-red-50', 'text-red-800');
                 card.classList.add('border-red-300');
                 answeredMap[key] = { answered: true, correct: false };
