@@ -1,0 +1,850 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Advanced Mastery Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto; height: 300px; }
+        .excel-green { color: #107C41; }
+        .bg-excel-green { background-color: #107C41; }
+        .nav-item.active { background-color: #e2e8f0; color: #107C41; border-right: 4px solid #107C41; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Custom scrollbar for table containers */
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        
+        /* Simulating Data Bars */
+        .data-bar { height: 100%; background-color: #6ee7b7; border-radius: 2px; transition: width 0.5s ease; }
+    </style>
+    <!-- Chosen Palette: "Spreadsheet Professional" - Clean Whites (#ffffff), Light Grays (#f8fafc), Slate Text (#334155), and Excel Green Accents (#107C41) -->
+    <!-- Application Structure Plan: 
+         1. Layout: Sidebar navigation (desktop) / Top bar (mobile) for persistent access to Units. Main content area changes dynamically.
+         2. Dashboard: High-level summary and "Curriculum Distribution" chart.
+         3. Topic I (Sanitation): Interactive "Error Decoder" (Click error -> See fix) and Concept Cards.
+         4. Topic II (Visuals): "Formatting Playground" - A table where users toggle buttons to apply CSS classes simulating Conditional Formatting.
+         5. Topic III (Logic & Practice): Syntax breakdowns for functions and an Interactive MCQ Quiz for the Case Studies.
+         Rationale: This structure breaks dense technical notes into task-oriented modules, allowing users to "play" with the concepts (formatting, errors) rather than just reading them.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Topic Distribution (Dashboard): Doughnut Chart (Chart.js) -> Shows the balance of the curriculum (Cleaning vs Visuals vs Logic).
+         2. Error Decoder (Topic I): Interactive Grid (HTML/JS) -> User clicks an error code, JS reveals the definition. Replaces static lists.
+         3. Formatting Simulator (Topic II): HTML Table + JS Class Toggling -> User clicks "Highlight > 5000", JS updates table cell styles. Simulates Excel UI.
+         4. Quiz Performance (Practice): Bar Chart (Chart.js) -> Updates dynamically as users answer Case Study questions.
+         5. Case Study Tables: HTML Tables styled to look like Excel grids for context.
+         6. Syntax Cards: Styled HTML blocks to explain complex formulas like SUMPRODUCT.
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+</head>
+<body class="text-slate-700 h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Mobile Header -->
+    <header class="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center z-10">
+        <h1 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+            <span class="w-8 h-8 bg-excel-green text-white rounded flex items-center justify-center text-xs">XLS</span>
+            Mastery Hub
+        </h1>
+        <button id="mobile-menu-btn" class="text-slate-600 focus:outline-none">
+            ☰
+        </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 h-full flex-shrink-0 transition-all duration-300 absolute md:relative z-20 h-full shadow-lg md:shadow-none transform -translate-x-full md:translate-x-0">
+        <div class="p-6 border-b border-slate-100">
+            <h1 class="font-bold text-xl text-slate-800 flex items-center gap-2">
+                <span class="w-8 h-8 bg-excel-green text-white rounded flex items-center justify-center text-sm shadow-sm">XLS</span>
+                Mastery Hub
+            </h1>
+            <p class="text-xs text-slate-500 mt-2">Advanced Excel Study Companion</p>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4">
+            <ul class="space-y-1">
+                <li><button onclick="router('dashboard')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors active" data-target="dashboard">Dashboard</button></li>
+                <li><button onclick="router('Topic1')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic1">Topic I: Data Sanitation</button></li>
+                <li><button onclick="router('Topic2')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic2">Topic II: Visual Logic</button></li>
+                <li><button onclick="router('Topic3')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="Topic3">Topic III: Adv. Functions</button></li>
+                <li><button onclick="router('practice')" class="nav-item w-full text-left px-6 py-3 hover:bg-slate-50 font-medium text-slate-600 transition-colors" data-target="practice">Case Studies & Quiz</button></li>
+            </ul>
+        </div>
+        <div class="p-4 border-t border-slate-100">
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <p class="text-xs font-semibold text-slate-600 mb-1">Study Progress</p>
+                <div class="w-full bg-slate-200 rounded-full h-1.5">
+                    <div id="progress-bar" class="bg-excel-green h-1.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1 text-right">0% Complete</p>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto bg-slate-50/50 relative w-full" id="main-content">
+        <!-- Content injected dynamically via JS -->
+    </main>
+
+    <script>
+        // --- Data Store ---
+        const appData = {
+            units: {
+                Topic1: {
+                    title: "Data Cleaning & View Management",
+                    desc: "Master the art of preparing data for analysis. Learn to handle errors, split text, and manage duplicates.",
+                    errors: [
+                        { code: "#DIV/0!", cause: "Division by zero or empty cell.", fix: "Check denominator or use IFERROR." },
+                        { code: "#N/A", cause: "Value not available. Common in VLOOKUP.", fix: "Check lookup value exists in first column." },
+                        { code: "#VALUE!", cause: "Wrong argument type (e.g. text + number).", fix: "Ensure data types match formula requirements." },
+                        { code: "#REF!", cause: "Invalid cell reference.", fix: "Undo deletion or update formula reference." },
+                        { code: "#NAME?", cause: "Unrecognized text/typo in function.", fix: "Check spelling of function name." },
+                        { code: "#NUM!", cause: "Invalid numeric calculation.", fix: "Check inputs (e.g. sqrt of negative)." }
+                    ]
+                },
+                Topic2: {
+                    title: "Conditional Formatting",
+                    desc: "Visualize data patterns instantly. Learn rules, scales, and formula-based formatting.",
+                    dataset: [
+                        { id: 101, rep: "Aman", region: "North", rev: 5000, status: "Pending" },
+                        { id: 102, rep: "Brij", region: "South", rev: 7000, status: "Paid" },
+                        { id: 103, rep: "Chitra", region: "East", rev: 2000, status: "Paid" },
+                        { id: 104, rep: "David", region: "West", rev: 8500, status: "Pending" },
+                        { id: 105, rep: "Eva", region: "North", rev: 4200, status: "Paid" }
+                    ]
+                },
+                Topic3: {
+                    title: "Advanced Functions & Validation",
+                    desc: "Unlock the power of dynamic spreadsheets with Lookup, Logic, and Validation tools.",
+                    functions: [
+                        { name: "VLOOKUP", syntax: "VLOOKUP(lookup_value, table_array, col_index, [range])", note: "Vertical lookup. Key must be in column 1." },
+                        { name: "INDEX-MATCH", syntax: "INDEX(array, MATCH(val, array, 0))", note: "More flexible. Can look left. Separates position finding from retrieval." },
+                        { name: "SUMPRODUCT", syntax: "SUMPRODUCT(array1, array2)", note: "Multiplies then adds. Great for weighted averages." },
+                        { name: "CHOOSE", syntax: "CHOOSE(index, val1, val2...)", note: "Picks a value based on index number (1-254)." }
+                    ]
+                },
+                practice: {
+                    title: "Case Studies & Application",
+                    desc: "Test your knowledge with real-world scenarios based on the notes.",
+                    cases: [
+                        {
+                            id: "A",
+                            title: "Case Study A: The Sales Audit",
+                            dataHeader: ["ID", "Rep", "Region", "Revenue", "Status"],
+                            dataRows: [
+                                [101, "Aman", "North", 5000, "Pending"],
+                                [102, "Brij", "South", 7000, "Paid"],
+                                [101, "Aman", "North", 5000, "Pending"],
+                                [103, "Chitra", "East", "#VALUE!", "Paid"]
+                            ],
+                            questions: [
+                                { q: "If you 'Remove Duplicates' on just the 'Rep' column, how many rows remain?", options: ["2", "3", "4"], ans: 1, expl: "Aman is repeated. Selecting 'Rep' removes the 2nd Aman regardless of other data. 3 unique Reps remain." },
+                                { q: "What is likely causing the #VALUE! error for Chitra?", options: ["Division by Zero", "Text/Space in calculation", "Deleted Reference"], ans: 1, expl: "#VALUE! typically occurs when math is attempted on text strings." },
+                                { q: "Formula to highlight entire row if Status is 'Paid'?", options: ["=$E2='Paid'", "=E2='Paid'", "=$E$2='Paid'"], ans: 0, expl: "You need to lock the column ($E) but let the row change (2)." }
+                            ]
+                        },
+                        {
+                            id: "B",
+                            title: "Case Study B: Inventory Management",
+                            dataHeader: ["Part ID", "Cost", "Qty", "Rating"],
+                            dataRows: [
+                                ["A-12", 10, 5, 1],
+                                ["B-44", 20, 2, 3],
+                                ["C-09", 15, 10, 2]
+                            ],
+                            questions: [
+                                { q: "Function to calculate Total Value (Cost * Qty) in one step?", options: ["SUM", "COUNTIF", "SUMPRODUCT"], ans: 2, expl: "SUMPRODUCT multiplies arrays (Cost * Qty) and sums the results." },
+                                { q: "Function to display 'Low/Med/High' based on Rating 1-3?", options: ["VLOOKUP", "CHOOSE", "MATCH"], ans: 1, expl: "CHOOSE(Rating, 'Low', 'Med', 'High') maps index 1, 2, 3 to values efficiently." }
+                            ]
+                        },
+                        {
+                            id: "C",
+                            title: "Case Study C: The Search Dashboard",
+                            dataHeader: ["Code", "Price"],
+                            dataRows: [
+                                ["P01", 100],
+                                ["P02", 250]
+                            ],
+                            questions: [
+                                { q: "Result of VLOOKUP('P03', Range, 2, FALSE)?", options: ["0", "#N/A", "#REF!"], ans: 1, expl: "P03 is not in the list, so exact match returns #N/A (Not Available)." },
+                                { q: "Result of MATCH(250, PriceCol, 0)?", options: ["250", "2", "P02"], ans: 1, expl: "MATCH returns the position. 250 is the 2nd item in the list." }
+                            ]
+                        }
+                        ,
+                        {
+                            id: "D",
+                            title: "Case Study D: Date & Time Cleanup",
+                            dataHeader: ["Order ID", "Order Date", "Ship Date", "Days to Ship"],
+                            dataRows: [
+                                ["O-101", "2025-01-03", "01/08/2025", "5"],
+                                ["O-102", "3-Jan-2025", "2025/01/06", "3"],
+                                ["O-103", "01/05/2025", "", ""],
+                                ["O-104", "05-01-2025", "10-01-2025", "5"]
+                            ],
+                            questions: [
+                                { q: "Which formula reliably calculates days between 'Order Date' in B2 and 'Ship Date' in C2?", options: ["=C2-B2", "=DATEDIF(B2,C2,\"d\")", "=TEXT(C2-B2,\"d\")"], ans: 0, expl: "Dates are serial numbers in Excel; subtracting (C2-B2) returns number of days. DATEDIF also works but is less commonly needed for simple differences." },
+                                { q: "Cell C4 is blank because the order hasn't shipped. Which formula shows blank until a ship date exists?", options: ["=IF(C4=\"\",\"\",C4-B4)", "=IFERROR(C4-B4,\"Pending\")", "=C4-B4"], ans: 0, expl: "Use IF to leave the cell blank when ship date is missing; IFERROR would return 'Pending' but still treat blanks differently." },
+                                { q: "Which format ensures varied date entry styles are recognized as dates?", options: ["Apply Text format to date columns", "Use consistent locale-aware date formats and convert text to dates with DATEVALUE when needed", "Store dates as strings for consistency"], ans: 1, expl: "Use consistent date formats or convert text dates via DATEVALUE; storing as text breaks date math." }
+                            ]
+                        },
+                        {
+                            id: "E",
+                            title: "Case Study E: Lookup Edge Cases",
+                            dataHeader: ["SKU", "Location", "Qty"],
+                            dataRows: [
+                                ["S-01", "A1", 10],
+                                ["S-02", "A2", 0],
+                                ["S-03", "A1", ""],
+                                ["S-04", "A3", 5]
+                            ],
+                            questions: [
+                                { q: "If a lookup value isn't found with exact match, VLOOKUP returns:", options: ["0", "#N/A", "Blank"], ans: 1, expl: "Exact-match lookups return #N/A when the value doesn't exist." },
+                                { q: "Which approach can look left of the key column?", options: ["VLOOKUP", "INDEX + MATCH", "HLOOKUP"], ans: 1, expl: "INDEX + MATCH can return values to the left of the lookup column." },
+                                { q: "Which wraps a lookup to hide errors with a friendly message?", options: ["IFERROR(VLOOKUP(...), 'Not Found')", "ISNA(VLOOKUP(...))", "ERROR.VLOOKUP(...)"], ans: 0, expl: "IFERROR replaces any error (including #N/A) with your chosen text." }
+                            ]
+                        },
+                        {
+                            id: "F",
+                            title: "Case Study F: SUMPRODUCT & Conditional Sums",
+                            dataHeader: ["Item", "Price", "Qty", "Category"],
+                            dataRows: [
+                                ["I-1", 12.5, 10, "A"],
+                                ["I-2", 20, 5, "B"],
+                                ["I-3", 7.5, 20, "A"],
+                                ["I-4", 15, 8, "C"]
+                            ],
+                            questions: [
+                                { q: "Which function multiplies two ranges and sums the results?", options: ["SUMPRODUCT", "SUM", "SUMIF"], ans: 0, expl: "SUMPRODUCT multiplies corresponding elements then sums the products." },
+                                { q: "To sum value only for Category 'A', use:", options: ["SUMPRODUCT with a Category='A' condition", "SUM only", "VLOOKUP"], ans: 0, expl: "SUMPRODUCT with a Category='A' mask multiplied by Price and Qty filters and sums correctly." },
+                                { q: "If some Qty cells are blank text, best simple fix is:", options: ["Coerce blanks to 0 before calculation (e.g., N() or VALUE())", "Ignore blanks", "Convert numbers to text"], ans: 0, expl: "Coercing blanks to zero prevents calculation errors and yields correct totals." }
+                            ]
+                        }
+                    ]
+                }
+            }
+        };
+
+        // --- State ---
+        let currentView = 'dashboard';
+        let quizScore = { correct: 0, total: 0, attempts: 0 };
+        // Track answered questions to allow per-case resets and prevent double-counting
+        const answeredMap = {};
+
+        // --- DOM Elements ---
+        const mainContent = document.getElementById('main-content');
+        const navItems = document.querySelectorAll('.nav-item');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        // --- Router ---
+        function router(target) {
+            currentView = target;
+            
+            // Update Nav UI
+            navItems.forEach(item => {
+                if (item.dataset.target === target) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+
+            // Mobile menu close
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+
+            // Render Content
+            mainContent.innerHTML = '';
+            mainContent.scrollTop = 0;
+            
+            if (target === 'dashboard') renderDashboard();
+            else if (target === 'Topic1') renderTopic1();
+            else if (target === 'Topic2') renderTopic2();
+            else if (target === 'Topic3') renderTopic3();
+            else if (target === 'practice') renderPractice();
+        }
+
+        // --- View Renderers ---
+
+        function renderDashboard() {
+            const html = `
+                <div class="p-8 max-w-7xl mx-auto fade-in">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-slate-800">Welcome to Excel Mastery</h2>
+                        <p class="text-slate-600 mt-2">Interactive notes for Advanced Excel: Data Cleaning, Visualization, and Logic.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <!-- Stat Card 1 -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Topic I</div>
+                            <h3 class="text-xl font-bold text-slate-800">Data Cleaning</h3>
+                            <p class="text-sm text-slate-500 mt-2">Text to Columns, Duplicates, Error Handling.</p>
+                            <button onclick="router('Topic1')" class="mt-4 text-sm text-excel-green font-medium hover:underline">Start Learning &rarr;</button>
+                        </div>
+                        <!-- Stat Card 2 -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Topic II</div>
+                            <h3 class="text-xl font-bold text-slate-800">Visual Logic</h3>
+                            <p class="text-sm text-slate-500 mt-2">Conditional Formatting, Rules, Data Bars.</p>
+                            <button onclick="router('Topic2')" class="mt-4 text-sm text-excel-green font-medium hover:underline">Start Learning &rarr;</button>
+                        </div>
+                        <!-- Stat Card 3 -->
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Topic III</div>
+                            <h3 class="text-xl font-bold text-slate-800">Adv. Functions</h3>
+                            <p class="text-sm text-slate-500 mt-2">VLOOKUP, INDEX-MATCH, Validation.</p>
+                            <button onclick="router('Topic3')" class="mt-4 text-sm text-excel-green font-medium hover:underline">Start Learning &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6">Curriculum Distribution</h3>
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div class="w-full md:w-1/2">
+                                <p class="text-slate-600 mb-4">
+                                    The mastery course is balanced between three core pillars. Each section builds upon the last:
+                                </p>
+                                <ul class="space-y-3 text-sm">
+                                    <li class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-slate-700"></span> <strong>Sanitation:</strong> Preparing raw data (Topic I).</li>
+                                    <li class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-excel-green"></span> <strong>Visualization:</strong> Seeing patterns (Topic II).</li>
+                                    <li class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-slate-300"></span> <strong>Logic:</strong> Automated decision making (Topic III).</li>
+                                </ul>
+                            </div>
+                            <div class="w-full md:w-1/2 flex justify-center">
+                                <div class="chart-container">
+                                    <canvas id="topicChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+
+            const ctx = document.getElementById('topicChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sanitation', 'Visualization', 'Logic'],
+                    datasets: [{
+                        data: [30, 30, 40],
+                        backgroundColor: ['#334155', '#107C41', '#cbd5e1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function renderTopic1() {
+            const data = appData.units.Topic1;
+            let html = `
+                <div class="p-8 max-w-7xl mx-auto fade-in">
+                    <div class="mb-6 pb-6 border-b border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Topic I: ${data.title}</h2>
+                        <p class="text-slate-600 max-w-3xl">${data.desc}</p>
+                    </div>
+
+                    <!-- Core Tools Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-excel-green transition-colors">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-slate-100 p-2 rounded text-lg">✂️</div>
+                                <h3 class="font-bold text-slate-800">Text to Columns</h3>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Split single columns into multiple based on delimiters (comma, space) or fixed width.</p>
+                            <div class="text-xs bg-slate-50 p-2 rounded border border-slate-200 font-mono text-slate-500">
+                                "Doe, John" &rarr; [Doe] [John]
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-excel-green transition-colors">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-slate-100 p-2 rounded text-lg">🧹</div>
+                                <h3 class="font-bold text-slate-800">Remove Duplicates</h3>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Located in <strong>Data Tab</strong>. Select columns to define "uniqueness".</p>
+                            <div class="text-xs bg-orange-50 p-2 rounded border border-orange-100 text-orange-800">
+                                <strong>Warning:</strong> Selecting ONLY "ID" removes rows with duplicate IDs even if Names differ.
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-excel-green transition-colors">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-slate-100 p-2 rounded text-lg">🎲</div>
+                                <h3 class="font-bold text-slate-800">Random Numbers</h3>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Generate dummy data easily.</p>
+                            <ul class="text-xs space-y-1 text-slate-500 font-mono">
+                                <li>=RAND() <span class="text-slate-400">// 0 to 1 decimal</span></li>
+                                <li>=RANDBETWEEN(1,100) <span class="text-slate-400">// Integers</span></li>
+                            </ul>
+                        </div>
+                         <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm hover:border-excel-green transition-colors">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="bg-slate-100 p-2 rounded text-lg">👁️</div>
+                                <h3 class="font-bold text-slate-800">Custom Views</h3>
+                            </div>
+                            <p class="text-sm text-slate-600 mb-3">Save specific filter/print settings. </p>
+                            <div class="text-xs bg-red-50 p-2 rounded border border-red-100 text-red-800">
+                                Limitation: Does not work if sheet contains an Excel Table (Ctrl+T).
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Error Debugger -->
+                    <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-800 p-4 text-white">
+                            <h3 class="font-bold flex items-center gap-2">
+                                <span>⚠️</span> Excel Error Debugger
+                            </h3>
+                            <p class="text-xs text-slate-300 mt-1">Click an error code to reveal its cause and fix.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2">
+                            <div class="p-6 bg-slate-50 grid grid-cols-2 gap-3 content-start">
+                                ${data.errors.map((err, index) => `
+                                    <button onclick="showErrorDetail(${index})" class="error-btn p-3 bg-white border border-slate-200 rounded font-mono font-bold text-red-600 hover:bg-red-50 hover:border-red-200 transition-all text-left">
+                                        ${err.code}
+                                    </button>
+                                `).join('')}
+                            </div>
+                            <div class="p-8 flex flex-col justify-center border-t md:border-t-0 md:border-l border-slate-200 bg-white" id="error-display-panel">
+                                <div class="text-center text-slate-400">
+                                    <div class="text-4xl mb-3">🔍</div>
+                                    <p>Select an error code on the left to analyze.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+        }
+
+        window.showErrorDetail = (index) => {
+            const err = appData.units.Topic1.errors[index];
+            const panel = document.getElementById('error-display-panel');
+            panel.innerHTML = `
+                <div class="fade-in">
+                    <h4 class="text-3xl font-mono font-bold text-red-600 mb-4">${err.code}</h4>
+                    <div class="mb-4">
+                        <span class="text-xs font-bold uppercase text-slate-400 tracking-wide">Diagnosis</span>
+                        <p class="text-slate-800 font-medium text-lg">${err.cause}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold uppercase text-slate-400 tracking-wide">Solution</span>
+                        <p class="text-excel-green font-medium">${err.fix}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTopic2() {
+            const data = appData.units.Topic2;
+            let html = `
+                <div class="p-8 max-w-7xl mx-auto fade-in">
+                    <div class="mb-6 pb-6 border-b border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Topic II: ${data.title}</h2>
+                        <p class="text-slate-600 max-w-3xl">${data.desc}</p>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row gap-8">
+                        <!-- Controls -->
+                        <div class="w-full lg:w-1/3 space-y-4">
+                            <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+                                <h3 class="font-bold text-slate-800 mb-3">Formatting Rules</h3>
+                                <p class="text-xs text-slate-500 mb-4">Click to apply rules to the table.</p>
+                                <div class="space-y-2">
+                                    <button onclick="applyFormat('high-rev')" class="w-full text-left px-4 py-2 rounded text-sm font-medium border border-slate-200 hover:bg-green-50 hover:text-green-700 transition-colors">
+                                        Revenue > 5000 (Green Text)
+                                    </button>
+                                    <button onclick="applyFormat('top-item')" class="w-full text-left px-4 py-2 rounded text-sm font-medium border border-slate-200 hover:bg-yellow-50 hover:text-yellow-700 transition-colors">
+                                        Top 1 Item (Yellow Fill)
+                                    </button>
+                                    <button onclick="applyFormat('paid-row')" class="w-full text-left px-4 py-2 rounded text-sm font-medium border border-slate-200 hover:bg-blue-50 hover:text-blue-700 transition-colors">
+                                        Row Formula: Status="Paid" (Blue Row)
+                                    </button>
+                                    <button onclick="applyFormat('data-bars')" class="w-full text-left px-4 py-2 rounded text-sm font-medium border border-slate-200 hover:bg-slate-50 transition-colors">
+                                        Show Data Bars
+                                    </button>
+                                    <button onclick="applyFormat('clear')" class="w-full text-left px-4 py-2 rounded text-sm font-medium border border-red-200 text-red-600 hover:bg-red-50 transition-colors mt-4">
+                                        Clear Formatting
+                                    </button>
+                                </div>
+                            </div>
+                             <div class="bg-slate-100 p-5 rounded-lg border border-slate-200">
+                                <h3 class="font-bold text-slate-700 mb-2 text-sm">Key Concepts</h3>
+                                <ul class="text-xs text-slate-600 space-y-2 list-disc pl-4">
+                                    <li><strong>Stop-If-True:</strong> Prevents later rules from running if the first one matches.</li>
+                                    <li><strong>Formula Rule:</strong> Must return TRUE/FALSE. e.g. <code>=$C2="Paid"</code>.</li>
+                                    <li><strong>Negative Data Bars:</strong> Can be set to grow leftwards for negative values.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Live Table -->
+                        <div class="w-full lg:w-2/3 bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 flex justify-between items-center">
+                                <span class="font-mono text-xs text-slate-500">dataset.xlsx</span>
+                                <div class="flex gap-1">
+                                    <span class="w-3 h-3 rounded-full bg-red-400"></span>
+                                    <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                                    <span class="w-3 h-3 rounded-full bg-green-400"></span>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto p-6">
+                                <table class="w-full text-sm text-left text-slate-600" id="demo-table">
+                                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-200">
+                                        <tr>
+                                            <th class="px-4 py-3">ID</th>
+                                            <th class="px-4 py-3">Rep</th>
+                                            <th class="px-4 py-3">Region</th>
+                                            <th class="px-4 py-3 w-40">Revenue</th>
+                                            <th class="px-4 py-3">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100">
+                                        ${data.dataset.map(row => `
+                                            <tr class="hover:bg-slate-50 transition-colors table-row-item" data-status="${row.status}" data-rev="${row.rev}">
+                                                <td class="px-4 py-3 font-mono">${row.id}</td>
+                                                <td class="px-4 py-3">${row.rep}</td>
+                                                <td class="px-4 py-3">${row.region}</td>
+                                                <td class="px-4 py-3 font-mono relative rev-cell">
+                                                    <span class="relative z-10">${row.rev}</span>
+                                                    <div class="absolute top-2 bottom-2 left-2 bg-green-200 opacity-0 bar-element" style="width: ${row.rev / 8500 * 80}%; z-index: 0;"></div>
+                                                </td>
+                                                <td class="px-4 py-3 status-cell">
+                                                    <span class="px-2 py-1 rounded text-xs border border-slate-200 bg-white">${row.status}</span>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 text-xs text-slate-400 text-center">
+                                Interactive Preview
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+        }
+
+        window.applyFormat = (type) => {
+            const rows = document.querySelectorAll('.table-row-item');
+            const revCells = document.querySelectorAll('.rev-cell');
+            const bars = document.querySelectorAll('.bar-element');
+
+            // Reset
+            rows.forEach(r => {
+                r.classList.remove('bg-blue-50', 'bg-yellow-50');
+                r.querySelectorAll('td').forEach(td => td.classList.remove('text-green-600', 'font-bold'));
+            });
+            bars.forEach(b => b.classList.add('opacity-0'));
+
+            if (type === 'high-rev') {
+                rows.forEach(r => {
+                    const rev = parseInt(r.dataset.rev);
+                    if (rev > 5000) {
+                        r.querySelector('.rev-cell').classList.add('text-green-600', 'font-bold');
+                    }
+                });
+            } else if (type === 'top-item') {
+                // Hardcoded top item is David (8500)
+                rows.forEach(r => {
+                    if (r.dataset.rev == "8500") r.classList.add('bg-yellow-50');
+                });
+            } else if (type === 'paid-row') {
+                rows.forEach(r => {
+                    if (r.dataset.status === "Paid") r.classList.add('bg-blue-50');
+                });
+            } else if (type === 'data-bars') {
+                bars.forEach(b => b.classList.remove('opacity-0'));
+            }
+        }
+
+        function renderTopic3() {
+            const data = appData.units.Topic3;
+            let html = `
+                <div class="p-8 max-w-7xl mx-auto fade-in">
+                    <div class="mb-6 pb-6 border-b border-slate-200">
+                        <h2 class="text-2xl font-bold text-slate-800 mb-2">Topic III: ${data.title}</h2>
+                        <p class="text-slate-600 max-w-3xl">${data.desc}</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            ${data.functions.map(fn => `
+                                <div class="bg-white p-5 rounded-lg border border-slate-200 shadow-sm">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <h3 class="font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded text-sm font-mono">${fn.name}</h3>
+                                    </div>
+                                    <code class="block bg-slate-800 text-green-400 p-3 rounded text-xs mb-3 font-mono overflow-x-auto whitespace-nowrap">
+                                        ${fn.syntax}
+                                    </code>
+                                    <p class="text-sm text-slate-600 border-l-2 border-excel-green pl-3">${fn.note}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border border-slate-200 shadow-sm h-fit">
+                            <h3 class="font-bold text-slate-800 mb-4">Data Validation Deep Dive</h3>
+                            <div class="space-y-4">
+                                <div class="p-4 bg-slate-50 rounded border border-slate-200">
+                                    <h4 class="font-semibold text-sm mb-2">Validation Criteria Types</h4>
+                                    <div class="flex flex-wrap gap-2">
+                                        <span class="px-2 py-1 bg-white border border-slate-300 rounded text-xs">Whole Number</span>
+                                        <span class="px-2 py-1 bg-white border border-slate-300 rounded text-xs">List (Dropdown)</span>
+                                        <span class="px-2 py-1 bg-white border border-slate-300 rounded text-xs">Date</span>
+                                        <span class="px-2 py-1 bg-white border border-slate-300 rounded text-xs">Text Length</span>
+                                        <span class="px-2 py-1 bg-white border-purple-200 text-purple-700 rounded text-xs font-bold">Custom (Formula)</span>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded border border-slate-200">
+                                    <h4 class="font-semibold text-sm mb-2">Error Alert Styles</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold">✕</div>
+                                            <div class="text-xs"><strong class="block text-slate-700">Stop</strong> Prevents entry completely.</div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-6 h-6 rounded-full bg-yellow-500 text-white flex items-center justify-center text-xs font-bold">!</div>
+                                            <div class="text-xs"><strong class="block text-slate-700">Warning</strong> Warns user but allows entry.</div>
+                                        </div>
+                                         <div class="flex items-center gap-3">
+                                            <div class="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold">i</div>
+                                            <div class="text-xs"><strong class="block text-slate-700">Information</strong> Just informs the user.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="mt-6 pt-6 border-t border-slate-200">
+                                <button onclick="router('practice')" class="w-full py-3 bg-excel-green text-white rounded font-bold shadow hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                                    <span>Practice These Concepts</span> &rarr;
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+        }
+
+        function renderPractice() {
+            const data = appData.units.practice;
+            let html = `
+                <div class="p-8 max-w-7xl mx-auto fade-in">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-slate-200 pb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-1">${data.title}</h2>
+                            <p class="text-slate-600 text-sm">Review the case studies below and answer the scenario questions.</p>
+                        </div>
+                        <div class="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                            <div class="text-right">
+                                <div class="text-[10px] text-slate-400 uppercase font-bold">Quiz Performance</div>
+                                <div class="text-lg font-bold text-slate-800" id="score-display">0 / 0</div>
+                            </div>
+                             <div class="chart-container" style="width: 100px; height: 50px;">
+                                <canvas id="quizChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-12">
+                        ${data.cases.map((cs, idx) => `
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                                <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                                    <h3 class="font-bold text-slate-700">${cs.title}</h3>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-xs bg-slate-200 text-slate-600 px-2 py-1 rounded">Dataset ${cs.id}</span>
+                                        <button onclick="resetCase(${idx})" class="text-xs px-2 py-1 bg-white border border-slate-200 rounded hover:bg-slate-50">Reset Case</button>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <!-- Dataset Table -->
+                                    <div class="mb-6 overflow-x-auto border border-slate-200 rounded">
+                                        <table class="w-full text-sm text-left">
+                                            <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                                                <tr>${cs.dataHeader.map(h => `<th class="px-4 py-2">${h}</th>`).join('')}</tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-slate-100 text-slate-600">
+                                                ${cs.dataRows.map(row => `
+                                                    <tr class="hover:bg-slate-50">
+                                                        ${row.map(cell => `<td class="px-4 py-2 font-mono text-xs">${cell}</td>`).join('')}
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <!-- Questions -->
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        ${cs.questions.map((q, qIdx) => `
+                                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 quiz-card" id="q-${idx}-${qIdx}">
+                                                <p class="text-sm font-semibold text-slate-800 mb-3">${q.q}</p>
+                                                <div class="space-y-2 mb-3">
+                                                    ${q.options.map((opt, oIdx) => `
+                                                        <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-slate-900">
+                                                            <input type="radio" name="g-${idx}-${qIdx}" value="${oIdx}" class="accent-excel-green" onchange="checkAnswer(${idx}, ${qIdx}, ${oIdx}, ${q.ans})">
+                                                            <span>${opt}</span>
+                                                        </label>
+                                                    `).join('')}
+                                                </div>
+                                                <div class="hidden feedback-area text-xs p-2 rounded mt-2"></div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            mainContent.innerHTML = html;
+
+            // Init small chart
+            initQuizChart();
+        }
+
+        let quizChartInstance = null;
+
+        function initQuizChart() {
+            const ctx = document.getElementById('quizChart').getContext('2d');
+            quizChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Correct', 'Wrong'],
+                    datasets: [{
+                        data: [quizScore.correct, quizScore.attempts - quizScore.correct],
+                        backgroundColor: ['#107C41', '#ef4444'],
+                        borderRadius: 4,
+                        barThickness: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { display: false }, y: { display: false } },
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+        }
+
+        window.checkAnswer = (caseIdx, qIdx, selected, correct) => {
+            const card = document.getElementById(`q-${caseIdx}-${qIdx}`);
+            const feedback = card.querySelector('.feedback-area');
+            const inputs = card.querySelectorAll('input');
+            const expl = appData.units.practice.cases[caseIdx].questions[qIdx].expl;
+
+            const key = `${caseIdx}-${qIdx}`;
+            // Prevent double counting if somehow called again
+            if (answeredMap[key]) return;
+
+            // Disable further input
+            inputs.forEach(i => i.disabled = true);
+            feedback.classList.remove('hidden');
+
+            quizScore.attempts++;
+
+            if (selected === correct) {
+                quizScore.correct++;
+                feedback.innerHTML = `<strong>Correct!</strong> ${expl}`;
+                feedback.classList.add('bg-green-100', 'text-green-800');
+                card.classList.add('border-green-300', 'ring-1', 'ring-green-300');
+                answeredMap[key] = { answered: true, correct: true };
+            } else {
+                // Show incorrect feedback and reveal the correct option text
+                const correctText = appData.units.practice.cases[caseIdx].questions[qIdx].options[correct];
+                feedback.innerHTML = `<strong>Incorrect.</strong> ${expl} <br><strong>Correct:</strong> ${correctText}`;
+                feedback.classList.add('bg-red-50', 'text-red-800');
+                card.classList.add('border-red-300');
+                answeredMap[key] = { answered: true, correct: false };
+            }
+
+            // Update UI Stats
+            document.getElementById('score-display').innerText = `${quizScore.correct} / ${quizScore.attempts}`;
+            updateProgress();
+
+            // Update Chart
+            if (quizChartInstance) {
+                quizChartInstance.data.datasets[0].data = [quizScore.correct, quizScore.attempts - quizScore.correct];
+                quizChartInstance.update();
+            }
+        };
+
+        // Reset all questions in a specific case: re-enable inputs, clear feedback, and adjust scores
+        window.resetCase = (caseIdx) => {
+            const cs = appData.units.practice.cases[caseIdx];
+            if (!cs || !cs.questions) return;
+
+            cs.questions.forEach((q, qIdx) => {
+                const key = `${caseIdx}-${qIdx}`;
+                const card = document.getElementById(`q-${caseIdx}-${qIdx}`);
+                if (!card) return;
+                const inputs = card.querySelectorAll('input');
+                const feedback = card.querySelector('.feedback-area');
+
+                // If this question was answered, roll back the score counters
+                if (answeredMap[key]) {
+                    quizScore.attempts = Math.max(0, quizScore.attempts - 1);
+                    if (answeredMap[key].correct) quizScore.correct = Math.max(0, quizScore.correct - 1);
+                    delete answeredMap[key];
+                }
+
+                // Reset UI
+                inputs.forEach(i => { i.disabled = false; i.checked = false; });
+                if (feedback) {
+                    feedback.classList.add('hidden');
+                    feedback.classList.remove('bg-green-100', 'text-green-800', 'bg-red-50', 'text-red-800');
+                    feedback.innerHTML = '';
+                }
+                card.classList.remove('border-green-300', 'ring-1', 'ring-green-300', 'border-red-300');
+            });
+
+            // Update UI stats and chart
+            document.getElementById('score-display').innerText = `${quizScore.correct} / ${quizScore.attempts}`;
+            updateProgress();
+            if (quizChartInstance) {
+                quizChartInstance.data.datasets[0].data = [quizScore.correct, quizScore.attempts - quizScore.correct];
+                quizChartInstance.update();
+            }
+        };
+
+        function updateProgress() {
+            // Compute total questions dynamically from practice cases
+            const totalQs = appData.units.practice.cases.reduce((acc, c) => acc + (c.questions ? c.questions.length : 0), 0);
+            const pct = totalQs === 0 ? 0 : Math.round((quizScore.attempts / totalQs) * 100);
+            
+            // Only update visual bar
+            const bar = document.getElementById('progress-bar');
+            const text = bar.parentElement.nextElementSibling;
+            if(bar && text) {
+                bar.style.width = `${pct}%`;
+                text.innerText = `${pct}% Complete`;
+            }
+        }
+
+        // --- Init ---
+        // Mobile Menu Toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+            }
+        });
+
+        // Start App
+        router('dashboard');
+
+    </script>
+</body>
+</html>
